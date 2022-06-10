@@ -132,7 +132,6 @@ if __name__ == '__main__':
         try:
 
             main_program()
-            break
 
         except KeyboardInterrupt:
             # Control + C (Remote)

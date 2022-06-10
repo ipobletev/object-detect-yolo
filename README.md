@@ -78,7 +78,7 @@ Just for realtime and represent the attempting to reconnect tries (with FRAME_TY
 ```
 ATTEMPT_CAMERA = 3
 ```
-Sensor path or dir to the source frame. Change to video o other path.
+Sensor path or dir to the source frame. Change to image, video, rtsp url, http url o other path.
 ```
 SENSOR_PATH = 'inTemp/image.jpg'
 ```

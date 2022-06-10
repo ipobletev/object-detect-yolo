@@ -1,6 +1,8 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-#Use .env file to add useful macros
+#Use .env file and add useful macros
 
 ################################################################ 
 ################################ USEFUL CONFIG

@@ -11,7 +11,7 @@ pip3 install -U -r requirements.txt
 
 Weight and cfg files will be downloaded by default to yolov3 with the program is execute.\
 classes.txt file have car and person, just this two classes will be detected \
-Run program. It use the test image "image.jpg" from inTemp folder. \
+Run program. It use the test image "image.jpg" from inTemp folder.
 ```
 python3 main.py
 ```
@@ -35,33 +35,33 @@ Program will download the weight and cfg file by defaul from https://pjreddie.co
     └── README.md
   
 ## Configuration
-If you need use other weight or others class-object detection, do the following:\
-1-If need to change the source (image, video, camera,etc) use the macro:\
+If you need use other weight or others class-object detection, do the following:
+#### 1-If need to change the source (image, video, camera,etc) use the macro:
 For image and video \
 FRAME_TYPE = 'STATIC' (Default)\
 SENSOR_PATH = 'inTemp/image.jpg'(Default)\
 For stream and cameras:\
 FRAME_TYPE = 'DYNAMIC'\
 SENSOR_PATH = 'path'\
-ATTEMPT_CAMERA = 3(Default)\
-\
-2-For change threshold or supression for NMS change the macro:\
+ATTEMPT_CAMERA = 3(Default)
+
+#### 2-For change threshold or supression for NMS change the macro:
 YOLO_THRESHOLD = 0.6(Default)\
-YOLO_SUPRESSION = 0.4(Default)\
-\
-3-For add or delete classes.\
+YOLO_SUPRESSION = 0.4(Default)
+
+#### 3-For add or delete classes.
 Edit dnn_folder/classes.txt (user class to detect). Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names.\
 If you need to change the path. Use the following macros and make a .env file in main folder:\
 CLASSES_PATH='dnn_model/coco.names'\
-USER_CLASSES_PATH='dnn_model/classes.txt'\
-\
-4-For use other weight and cfg files.\
+USER_CLASSES_PATH='dnn_model/classes.txt'
+
+#### 4-For use other weight and cfg files.
 Use dnn_folder to keep cfg and weight files (Default: yolov3). It is downloaded automaticaly by default.\
 If you need to change the path. Use the following macros and make a .env file in main folder:\
 YOLO_WEIGHT_PATH='dnn_model/yolov3.weights'\
-YOLO_WEIGHT_CFG_PATH='dnn_model/yolov3.cfg'\
-\
-5-Use other useful enviroment macros
+YOLO_WEIGHT_CFG_PATH='dnn_model/yolov3.cfg'
+
+#### 5-Use other useful enviroment macros
 
 ## About Enviroment macros
 Make a .env file and use some macros, which has the following default value:

@@ -1,6 +1,6 @@
 # Object Detector Yolo-OpenCV
 
-Object detection with yolo-opencv by defalt it use and download yolov3
+Object detection with yolo-opencv.
 
 ## Instalation
 ```
@@ -8,7 +8,10 @@ pip3 install -U -r requirements.txt
 ```
 
 ## Run program with test image
-Run program use the test image from inTemp folder. 
+
+If nothing is configurate. Weight and cfg files will be downloaded by default to yolov3.\
+classes.txt file have car and person, just this two classes will be detected \
+Run program. It use the test image "image.jpg" from inTemp folder. \
 ```
 python3 main.py
 ```
@@ -33,20 +36,28 @@ Program will download the weight and cfg file by defaul from https://pjreddie.co
   
 ## Configuration
 If you need use other weight or others class-object detection, do the following:\
+1-If need to change the source (image, video, camera,etc) use the macro:\
+For image and video \
+FRAME_TYPE = 'STATIC' (Default)\
+SENSOR_PATH = 'inTemp/image.jpg'(Default)\
+For stream and cameras:\
+FRAME_TYPE = 'DYNAMIC'\
+SENSOR_PATH = 'path'\
+ATTEMPT_CAMERA = 3(Default)\
 \
-1-For add or delete classes.\
+2-For add or delete classes.\
 Edit dnn_folder/classes.txt (user class to detect). Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names.\
 If you need to change the path. Use the following macros and make a .env file in main folder:\
 CLASSES_PATH='dnn_model/coco.names'\
 USER_CLASSES_PATH='dnn_model/classes.txt'\
 \
-2-For use other weight and cfg files.\
+3-For use other weight and cfg files.\
 Use dnn_folder to keep cfg and weight files (Default: yolov3). It is downloaded automaticaly by default.\
 If you need to change the path. Use the following macros and make a .env file in main folder:\
 YOLO_WEIGHT_PATH='dnn_model/yolov3.weights'\
 YOLO_WEIGHT_CFG_PATH='dnn_model/yolov3.cfg'\
 \
-3-Use other useful enviroment macros
+4-Use other useful enviroment macros
 
 ## About Enviroment macros
 Make a .env file and use some macros, which has the following default value:
@@ -61,7 +72,7 @@ FRAME_TYPE = 'STATIC'
 ```
 Just for realtime and represent the attempting to reconnect tries (with FRAME_TYPE="DYNAMIC").
 ```
-ATTEMPT_CAMERAS = 3
+ATTEMPT_CAMERA = 3
 ```
 Sensor path or dir to the source frame. Change to video o other path.
 ```

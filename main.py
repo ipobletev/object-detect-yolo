@@ -16,7 +16,7 @@ def camera_process(camera_path):
     status = 0
     try_attempt =0
 
-    while(try_attempt <= (userconfig.ATTEMPT_CAMERAS-1)):
+    while(try_attempt <= (userconfig.ATTEMPT_CAMERA-1)):
 
         try_attempt += 1
         capture_obj = cv2.VideoCapture(camera_path)

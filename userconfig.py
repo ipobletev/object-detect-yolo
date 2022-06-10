@@ -14,7 +14,7 @@ load_dotenv()
 FRAME_TYPE = os.getenv('FRAME_TYPE', 'STATIC')
 
 # Just for realtime FRAME_TYPE="DYNAMIC", attempting to reconnect tries.
-ATTEMPT_CAMERAS = int(os.getenv('ATTEMPT_CAMERAS', '3'))
+ATTEMPT_CAMERA = int(os.getenv('ATTEMPT_CAMERA', '3'))
 
 # Sensor path or dir to the source of frame
 SENSOR_PATH = os.getenv('SENSOR_PATH', 'inTemp/image.jpg')

@@ -60,22 +60,22 @@ class video_process:
             try_attempt += 1
 
             if not self.capture_obj.isOpened():
-                logging.debug("No hay comunicacion con la camara")
+                logging.debug("There is no communication with the camera")
                 status = 1
 
-            logging.debug("Capturando frame...")
+            logging.debug("Capturing frame...")
             frame_grabbed, frame = self.capture_obj.read()
 
             if not frame_grabbed:
-                logging.debug("No se pudo capturar frame")
+                logging.debug("Frame could not be captured")
                 status = 1
 
             # Error, Reconnect camera
             if status != 0:
-                logging.debug("Reinicializo camara")
+                logging.debug("Reset camera")
             #OK, status =0
             else:
-                logging.debug("Capturado.")
+                logging.debug("Frame Captured.")
                 
                 return status, frame
         #Error
@@ -104,7 +104,7 @@ def main_program():
                 try:
                     frame_raw = cv2.imread(userconfig.SOURCE_PATH)
                 except:
-                    logging.error("No se pudo leer fuente de imagen")
+                    logging.error("Could not read image source")
                     status=1
 
             # From Camera
@@ -114,7 +114,7 @@ def main_program():
                 try:
                     status, frame_raw = videoprocess.video_processing()
                 except:
-                    logging.error("No se pudo leer fuente de video")
+                    logging.error("Could not read video source")
                     break
 
             if(userconfig.SOURCE_TYPE == "STREAM"):
@@ -123,7 +123,7 @@ def main_program():
                 try:
                     status, frame_raw = videoprocess.stream_proccesing()
                 except:
-                    logging.error("No se pudo leer fuente de stream")
+                    logging.error("Could not read stream source")
                     break
   
             ####################### Analize image #######################
@@ -204,7 +204,7 @@ if __name__ == '__main__':
             )
 
     logging.debug("###################################")
-    logging.debug("Inicializa sistema")
+    logging.debug("Initialice System - Object Detector Yolo-OpenCV")
     logging.debug("###################################")
 
     #Init video process 
@@ -234,7 +234,7 @@ if __name__ == '__main__':
             videoprocess.capture_obj.release()
             videoprocess.video_writer.release()
     except Exception as error_info:
-        logging.error("Un error ha ocurrido.")
+        logging.error("A error has ocurred.")
         logging.error(error_info)
 
     ################## END
@@ -244,6 +244,6 @@ if __name__ == '__main__':
         cv2.destroyAllWindows()
 
     #video_capture.release()
-    logging.debug("Sistema Finalizado")
+    logging.debug("System Finished")
     logging.debug("###################################")
     logging.debug("###################################")

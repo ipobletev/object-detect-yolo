@@ -30,6 +30,12 @@ VM_GUI = (os.getenv('VM_GUI', 'False') == 'True')
 # Enable save log to folder /log
 ENABLE_LOG_FILE=(os.getenv('ENABLE_LOG_FILE', 'False') == 'True')
 
+# Limit to seconds per frame
+LIMIT_TOSECONDS_PERFRAME = int(os.getenv('LIMIT_TOSECONDS_PERFRAME', '0'))
+
+# Disable auto download weight and cgf by yolo name in pjreddie repo
+DISABLE_WEIGHT_DOWNLOAD = (os.getenv('VM_GUI', 'False') == 'True')
+
 ################################################################ 
 ################################ YOLO CONFIG
 ################################################################ 

@@ -4,8 +4,7 @@ import os, glob
 import sys
 import userconfig
 import logging
-from threading import Timer
-from datetime import datetime, timezone
+from datetime import datetime
 PYTHONPATH=os.getcwd() + '/Modules'
 sys.path.append(PYTHONPATH)
 from SME_ImageProcessing import ImageProcessing
@@ -83,82 +82,98 @@ class video_process:
         return status, frame
 
 def main_program():
+
+    # Initial time
+    last_time = time.time()
+    start_time = time.time() - userconfig.LIMIT_TOSECONDS_PERFRAME
+
     while(1):
-        logging.debug("---------------------------------------------")
+        if((time.time() - start_time) > userconfig.LIMIT_TOSECONDS_PERFRAME):
 
-        ####################### Read frame #######################
-        status=0
-        frame_raw=""
+            logging.debug("---------------------------------------------")
+            # start time of the loop for limit functionality
+            start_time = time.time() 
 
-        # From imagen or video
-        if(userconfig.SOURCE_TYPE == "IMAGE"):
-            logging.debug("Image frame")
-            try:
-                frame_raw = cv2.imread(userconfig.SOURCE_PATH)
-            except:
-                logging.error("No se pudo leer fuente de imagen")
-                status=1
+            ####################### Read frame #######################
+            status=0
+            frame_raw=""
 
-        # From Camera
-        if(userconfig.SOURCE_TYPE == "VIDEO"):
-            logging.debug("Video frame")
+            # From imagen or video
+            if(userconfig.SOURCE_TYPE == "IMAGE"):
+                logging.debug("Image frame")
+                try:
+                    frame_raw = cv2.imread(userconfig.SOURCE_PATH)
+                except:
+                    logging.error("No se pudo leer fuente de imagen")
+                    status=1
 
-            try:
-                status, frame_raw = videoprocess.video_processing()
-            except:
-                logging.error("No se pudo leer fuente de video")
-                break
+            # From Camera
+            if(userconfig.SOURCE_TYPE == "VIDEO"):
+                logging.debug("Video frame")
 
-        if(userconfig.SOURCE_TYPE == "STREAM"):
-            logging.debug("Streaming frame")
+                try:
+                    status, frame_raw = videoprocess.video_processing()
+                except:
+                    logging.error("No se pudo leer fuente de video")
+                    break
 
-            try:
-                status, frame_raw = videoprocess.stream_proccesing()
-            except:
-               logging.error("No se pudo leer fuente de stream")
-               break
-            
-        ####################### Analize image #######################
-        if status == 0:
-            frame_yolo = frame_raw.copy()
-            # Analize the image frame
-            flag_detection= False
-            flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
+            if(userconfig.SOURCE_TYPE == "STREAM"):
+                logging.debug("Streaming frame")
 
-            if flag_detection == True:
-                pass
+                try:
+                    status, frame_raw = videoprocess.stream_proccesing()
+                except:
+                    logging.error("No se pudo leer fuente de stream")
+                    break
+  
+            ####################### Analize image #######################
+            if status == 0:
 
-            ####################### WRITE #######################
-            if(userconfig.ENABLE_WRITE_FRAME == True):
+                frame_yolo = frame_raw.copy()
+                # Analize the image frame
+                flag_detection= False
+                flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
 
-                # Write image
-                if(userconfig.SOURCE_TYPE == "IMAGE"):
-                    cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame_yolo)
-                if(userconfig.SOURCE_TYPE == "VIDEO"):
-                    videoprocess.video_writer.write(frame_yolo)
-                if(userconfig.SOURCE_TYPE == "STREAM"):
-                    videoprocess.video_writer.write(frame_yolo)
+                if flag_detection == True:
+                    pass
 
-            ####################### Image GUI #######################
-            if(userconfig.VM_GUI == True):
-                cv2.imshow('YOLO Algorithm', frame_yolo)
-            
-            # Stop image
-            if(userconfig.VM_GUI == True):
-                if(cv2.waitKey(1) == 27):
+                ####################### WRITE #######################
+                if(userconfig.ENABLE_WRITE_FRAME == True):
+
+                    # Write image
+                    if(userconfig.SOURCE_TYPE == "IMAGE"):
+                        cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame_yolo)
+                    if(userconfig.SOURCE_TYPE == "VIDEO"):
+                        videoprocess.video_writer.write(frame_yolo)
                     if(userconfig.SOURCE_TYPE == "STREAM"):
-                        videoprocess.capture_obj.release()
-                        videoprocess.video_writer.release()
-                        break
-        
-        if(userconfig.SOURCE_TYPE == "IMAGE"):
-            break
+                        videoprocess.video_writer.write(frame_yolo)
 
-        if(userconfig.SOURCE_TYPE == "VIDEO"):
-            if(videoprocess.id_video_frame >= videoprocess.total_frames):
-                videoprocess.capture_obj.release()
-                videoprocess.video_writer.release()
+                ####################### Image GUI #######################
+                if(userconfig.VM_GUI == True):
+                    cv2.imshow('YOLO Algorithm', frame_yolo)
+                
+                # Stop image
+                if(userconfig.VM_GUI == True):
+                    if(cv2.waitKey(1) == 27):
+                        if(userconfig.SOURCE_TYPE == "STREAM"):
+                            videoprocess.capture_obj.release()
+                            videoprocess.video_writer.release()
+                            break
+            
+            if(userconfig.SOURCE_TYPE == "IMAGE"):
                 break
+
+            if(userconfig.SOURCE_TYPE == "VIDEO"):
+                if(videoprocess.id_video_frame >= videoprocess.total_frames):
+                    videoprocess.capture_obj.release()
+                    videoprocess.video_writer.release()
+                    break
+            
+            # Calulate FPS and finish time
+            calculate_time = (time.time() - last_time)
+            calculate_fps = (1.0 / calculate_time)
+            logging.debug("FPS: %0.2f - Time: %0.2f", calculate_fps, calculate_time)
+            last_time = time.time()
 
 if __name__ == '__main__':
 
@@ -196,13 +211,18 @@ if __name__ == '__main__':
     if(userconfig.SOURCE_TYPE == "VIDEO" or userconfig.SOURCE_TYPE == "STREAM"):
         videoprocess = video_process(userconfig.SOURCE_PATH)
 
-    # Init Neuronal Network with yolo
+    # Download cfg and yolo weight
     logging.debug(os.path.basename(userconfig.YOLO_WEIGHT_PATH))
-    attempt_download_weigth(userconfig.YOLO_WEIGHT_PATH)
-    attempt_download_cfg(userconfig.YOLO_WEIGHT_CFG_PATH)
+
+    if(userconfig.DISABLE_WEIGHT_DOWNLOAD == False):
+        attempt_download_weigth(userconfig.YOLO_WEIGHT_PATH)
+        attempt_download_cfg(userconfig.YOLO_WEIGHT_CFG_PATH)
+
+    # Init Neuronal Network with yolo
     yolobject = ImageProcessing(userconfig.YOLO_WEIGHT_CFG_PATH,userconfig.YOLO_WEIGHT_PATH)
 
     ################## LOOP
+
     try:
 
         main_program()

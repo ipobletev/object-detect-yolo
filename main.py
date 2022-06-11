@@ -11,89 +11,152 @@ sys.path.append(PYTHONPATH)
 from SME_ImageProcessing import ImageProcessing
 from download_yolomodel import attempt_download_cfg, attempt_download_weigth
 
-def camera_process(camera_path):
+class video_process:
 
-    status = 0
-    try_attempt =0
+    id_video_frame=0
+    total_frames = 0
+    fps = 0
+    frame_size =0 
+    video_writer = ''
+    capture_obj=''
 
-    while(try_attempt <= (userconfig.ATTEMPT_CAMERA-1)):
+    def __init__(self,camera_path) -> None:
 
-        try_attempt += 1
-        capture_obj = cv2.VideoCapture(camera_path)
+        self.capture_obj = cv2.VideoCapture(camera_path)
+        self.fps = int(self.capture_obj.get(cv2.CAP_PROP_FPS))
+        self.total_frames = self.capture_obj.get(cv2.CAP_PROP_FRAME_COUNT)
+        self.frame_size =(int(self.capture_obj.get(cv2.CAP_PROP_FRAME_WIDTH)),int(self.capture_obj.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        # Define the codec and create VideoWriter object
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self.video_writer = cv2.VideoWriter('outTemp/output.avi', fourcc, self.fps, self.frame_size)
 
-        if not capture_obj.isOpened():
-            logging.debug("No hay comunicacion con la camara")
-            status = 1
+    def video_processing(self):
+        
+        status=0
 
-        logging.debug("Capturando frame...")
-        frame_grabbed, frame = capture_obj.read()
+        rev, frame = self.capture_obj.read()
+        if not rev:
+            logging.error("Error to read frame")
+            status=1
 
-        if not frame_grabbed:
-            logging.debug("No se pudo capturar frame")
-            status = 1
+        self.id_video_frame+=1
+        logging.debug("Frame %d/%d", self.id_video_frame,self.total_frames)
 
-        # Error, Reconnect camera
-        if status != 0:
-            logging.debug("Reinicializo camara")
-        #OK, status =0
-        else:
-            logging.debug("Capturado.")
-            return status, frame
-    #Error
-    return status, frame
+        return status, frame
+
+    def stream_proccesing(camera_path):
+
+        status = 0
+        try_attempt =0
+
+        while(try_attempt <= (userconfig.ATTEMPT_CAMERA-1)):
+
+            try_attempt += 1
+            capture_obj = cv2.VideoCapture(camera_path)
+
+            if not capture_obj.isOpened():
+                logging.debug("No hay comunicacion con la camara")
+                status = 1
+
+            logging.debug("Capturando frame...")
+            frame_grabbed, frame = capture_obj.read()
+
+            if not frame_grabbed:
+                logging.debug("No se pudo capturar frame")
+                status = 1
+
+            # Error, Reconnect camera
+            if status != 0:
+                logging.debug("Reinicializo camara")
+            #OK, status =0
+            else:
+                logging.debug("Capturado.")
+                
+                return status, frame_grabbed
+        #Error
+        return status, frame
 
 def main_program():
+    while(1):
+        logging.debug("---------------------------------------------")
 
-    # if camera is gone - Reinitialize camera conectivity
-    logging.debug("---------------------------------------------")
+        ####################### Read frame #######################
+        status=0
+        frame=""
+        frame_raw=""
 
-    # Read frame
-    status=0
-    frame=""
-    frame_raw=""
+        # From imagen or video
+        if(userconfig.SOURCE_TYPE == "IMAGE"):
+            logging.debug("Static frame")
+            try:
+                frame_raw = cv2.imread(userconfig.SOURCE_PATH)
+            except:
+                logging.error("No se pudo leer fuente de imagen")
+                status=1
 
-    # From imagen or video
-    if(userconfig.FRAME_TYPE == "STATIC"):
-        logging.debug("Static frame")
-        try:
-            frame_raw = cv2.imread(userconfig.SENSOR_PATH)
-        except:
-            logging.error("No se pudo leer fuente static")
-            status=1
+        # From Camera
+        if(userconfig.SOURCE_TYPE == "VIDEO"):
+            logging.debug("Video frame")
 
-    # From Camera
-    if(userconfig.FRAME_TYPE == "DYNAMIC"):
-        logging.debug("Dynamic frame")
-        try:
-            status, frame_raw = camera_process(userconfig.SENSOR_PATH)
-        except:
-            logging.error("No se pudo leer frame")
-            status=1
+            try:
+                status, frame_raw = videoprocess.video_processing()
+            except:
+                logging.error("No se pudo leer fuente de video")
+                break
 
-    # Analize image
-    if status == 0:
-        frame = frame_raw.copy()
-        # Analize the image frame
-        flag_detection= False
-        flag_detection, objects_detected = yolobject.YoloProcessing(frame)
+        if(userconfig.SOURCE_TYPE == "STREAM"):
+            logging.debug("Video frame")
 
-        if flag_detection == True:
-            pass
+            try:
+                status, frame_raw = videoprocess.stream_proccesing()
+            except:
+                logging.error("No se pudo leer fuente de stream")
+                break
+        ####################### Analize image #######################
+        if status == 0:
+            frame_yolo = frame_raw.copy()
+            # Analize the image frame
+            flag_detection= False
+            flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
 
-    # Stop image
-    if(userconfig.VM_GUI == True):
-        if(cv2.waitKey(1) == 27):
-            pass
+            if flag_detection == True:
+                
+                ####################### WRITE #######################
+                if(userconfig.ENABLE_WRITE_FRAME == True):
 
-    # Show image debug
-    if(userconfig.VM_GUI == True):
-        cv2.imshow('YOLO Algorithm', frame)
-    
-    # Write processed imagen 
-    if(userconfig.ENABLE_WRITE_FRAME == True):
-        cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame)
+                    # Write image
+                    if(userconfig.SOURCE_TYPE == "IMAGE"):
+                        cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame_yolo)
+                    if(userconfig.SOURCE_TYPE == "VIDEO"):
+                        videoprocess.video_writer.write(frame_yolo)
+                    if(userconfig.SOURCE_TYPE == "STREAM"):
+                        videoprocess.video_writer.write(frame_yolo)
+        
+            ####################### Image GUI #######################
+            if(userconfig.VM_GUI == True):
+                cv2.imshow('YOLO Algorithm', frame_yolo)
+            
+            # Stop image
+            if(userconfig.VM_GUI == True):
+                if(cv2.waitKey(1) == 27):
+                    if(userconfig.SOURCE_TYPE == "STREAM"):
+                        videoprocess.capture_obj.release()
+                        videoprocess.video_writer.release()
+                        break
+        
+        if(userconfig.SOURCE_TYPE == "IMAGE"):
+            break
+
+        if(userconfig.SOURCE_TYPE == "VIDEO"):
+            if(videoprocess.id_video_frame >= videoprocess.total_frames):
+                videoprocess.capture_obj.release()
+                videoprocess.video_writer.release()
+                break
 
 if __name__ == '__main__':
+
+    ################## INIT
+
     # Clear terminal
     clear = lambda: os.system('clear')
     clear()
@@ -108,7 +171,7 @@ if __name__ == '__main__':
             level=logging.DEBUG,
             format='[%(levelname)s] - %(asctime)s %(threadName)-10s: %(message)s',
             handlers=[
-                logging.FileHandler("log/ova-lascondes_" + str(datetime.now()) + ".log"),
+                logging.FileHandler("log/log_" + str(datetime.now()) + ".log"),
                 logging.StreamHandler()
             ]
             )
@@ -122,25 +185,34 @@ if __name__ == '__main__':
     logging.debug("Inicializa sistema")
     logging.debug("###################################")
 
+    #Init video process 
+    if(userconfig.SOURCE_TYPE == "VIDEO" or userconfig.SOURCE_TYPE == "STREAM"):
+        videoprocess = video_process(userconfig.SOURCE_PATH)
+
     # Init Neuronal Network with yolo
     logging.debug(os.path.basename(userconfig.YOLO_WEIGHT_PATH))
     attempt_download_weigth(userconfig.YOLO_WEIGHT_PATH)
     attempt_download_cfg(userconfig.YOLO_WEIGHT_CFG_PATH)
     yolobject = ImageProcessing(userconfig.YOLO_WEIGHT_CFG_PATH,userconfig.YOLO_WEIGHT_PATH)
 
-    while(1):
-        try:
 
-            main_program()
+    ################## LOOP
+    try:
 
-        except KeyboardInterrupt:
-            # Control + C (Remote)
-            logging.debug("key stop")
-            break
-        # except Exception as error_info:
-        #     logging.error("Un error ha ocurrido.")
-        #     logging.debug(error_info)
-        #     break
+        main_program()
+
+    except KeyboardInterrupt:
+        # Control + C (Remote)
+        logging.debug("key stop")
+        if(userconfig.SOURCE_TYPE == "STREAM"):
+            videoprocess.capture_obj.release()
+            videoprocess.video_writer.release()
+
+    except Exception as error_info:
+        logging.error("Un error ha ocurrido.")
+        logging.error(error_info)
+
+    ################## END
 
     logging.debug("###################################")
     if(userconfig.VM_GUI == True):

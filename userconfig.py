@@ -12,11 +12,14 @@ load_dotenv()
 # IMAGE, VIDEO, STREAM
 SOURCE_TYPE = os.getenv('SOURCE_TYPE', 'IMAGE')
 
-# Just for realtime FRAME_TYPE="DYNAMIC", attempting to reconnect tries.
+# Just for realtime SOURCE_TYPE="DYNAMIC", attempting to reconnect tries.
 ATTEMPT_CAMERA = int(os.getenv('ATTEMPT_CAMERA', '3'))
 
 # Sensor path or dir to the source of frame
-SOURCE_PATH = os.getenv('SENSOR_PATH', 'inTemp/image.jpg')
+SOURCE_PATH = os.getenv('SOURCE_PATH', 'inTemp/image.jpg')
+
+# Set fps for video file in streaming mode SOURCE_TYPE = 'STREAM'
+MANUAL_FPS =  int(os.getenv('MANUAL_FPS', '0'))
 
 # Enable for save image from yolo processing to /outTemp
 ENABLE_WRITE_FRAME = (os.getenv('ENABLE_WRITE_FRAME', 'False') == 'True')

@@ -21,11 +21,18 @@ class video_process:
     capture_obj=''
 
     def __init__(self,camera_path) -> None:
+        
+        if (camera_path.isnumeric()):
+            camera_path = int(camera_path)
 
         self.capture_obj = cv2.VideoCapture(camera_path)
         self.fps = int(self.capture_obj.get(cv2.CAP_PROP_FPS))
         self.total_frames = self.capture_obj.get(cv2.CAP_PROP_FRAME_COUNT)
         self.frame_size =(int(self.capture_obj.get(cv2.CAP_PROP_FRAME_WIDTH)),int(self.capture_obj.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+
+        if(userconfig.MANUAL_FPS > 0):
+            self.fps = userconfig.MANUAL_FPS
+
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.video_writer = cv2.VideoWriter('outTemp/output.avi', fourcc, self.fps, self.frame_size)
@@ -44,7 +51,7 @@ class video_process:
 
         return status, frame
 
-    def stream_proccesing(camera_path):
+    def stream_proccesing(self):
 
         status = 0
         try_attempt =0
@@ -52,14 +59,13 @@ class video_process:
         while(try_attempt <= (userconfig.ATTEMPT_CAMERA-1)):
 
             try_attempt += 1
-            capture_obj = cv2.VideoCapture(camera_path)
 
-            if not capture_obj.isOpened():
+            if not self.capture_obj.isOpened():
                 logging.debug("No hay comunicacion con la camara")
                 status = 1
 
             logging.debug("Capturando frame...")
-            frame_grabbed, frame = capture_obj.read()
+            frame_grabbed, frame = self.capture_obj.read()
 
             if not frame_grabbed:
                 logging.debug("No se pudo capturar frame")
@@ -72,7 +78,7 @@ class video_process:
             else:
                 logging.debug("Capturado.")
                 
-                return status, frame_grabbed
+                return status, frame
         #Error
         return status, frame
 
@@ -82,12 +88,11 @@ def main_program():
 
         ####################### Read frame #######################
         status=0
-        frame=""
         frame_raw=""
 
         # From imagen or video
         if(userconfig.SOURCE_TYPE == "IMAGE"):
-            logging.debug("Static frame")
+            logging.debug("Image frame")
             try:
                 frame_raw = cv2.imread(userconfig.SOURCE_PATH)
             except:
@@ -105,13 +110,14 @@ def main_program():
                 break
 
         if(userconfig.SOURCE_TYPE == "STREAM"):
-            logging.debug("Video frame")
+            logging.debug("Streaming frame")
 
             try:
                 status, frame_raw = videoprocess.stream_proccesing()
             except:
-                logging.error("No se pudo leer fuente de stream")
-                break
+               logging.error("No se pudo leer fuente de stream")
+               break
+            
         ####################### Analize image #######################
         if status == 0:
             frame_yolo = frame_raw.copy()
@@ -120,18 +126,19 @@ def main_program():
             flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
 
             if flag_detection == True:
-                
-                ####################### WRITE #######################
-                if(userconfig.ENABLE_WRITE_FRAME == True):
+                pass
 
-                    # Write image
-                    if(userconfig.SOURCE_TYPE == "IMAGE"):
-                        cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame_yolo)
-                    if(userconfig.SOURCE_TYPE == "VIDEO"):
-                        videoprocess.video_writer.write(frame_yolo)
-                    if(userconfig.SOURCE_TYPE == "STREAM"):
-                        videoprocess.video_writer.write(frame_yolo)
-        
+            ####################### WRITE #######################
+            if(userconfig.ENABLE_WRITE_FRAME == True):
+
+                # Write image
+                if(userconfig.SOURCE_TYPE == "IMAGE"):
+                    cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame_yolo)
+                if(userconfig.SOURCE_TYPE == "VIDEO"):
+                    videoprocess.video_writer.write(frame_yolo)
+                if(userconfig.SOURCE_TYPE == "STREAM"):
+                    videoprocess.video_writer.write(frame_yolo)
+
             ####################### Image GUI #######################
             if(userconfig.VM_GUI == True):
                 cv2.imshow('YOLO Algorithm', frame_yolo)
@@ -195,7 +202,6 @@ if __name__ == '__main__':
     attempt_download_cfg(userconfig.YOLO_WEIGHT_CFG_PATH)
     yolobject = ImageProcessing(userconfig.YOLO_WEIGHT_CFG_PATH,userconfig.YOLO_WEIGHT_PATH)
 
-
     ################## LOOP
     try:
 
@@ -207,7 +213,6 @@ if __name__ == '__main__':
         if(userconfig.SOURCE_TYPE == "STREAM"):
             videoprocess.capture_obj.release()
             videoprocess.video_writer.release()
-
     except Exception as error_info:
         logging.error("Un error ha ocurrido.")
         logging.error(error_info)

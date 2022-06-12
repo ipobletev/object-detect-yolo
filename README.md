@@ -35,9 +35,6 @@ Program will download the weight and cfg file by defaul (yolov3) from https://pj
     └── README.md
 
 ## Examples uses
-
-
-## Configuration
 If you need use other weight or others class-object detection, do the following:
 #### 1-Change the frame source and path. Image (Default), video, camera:
 For image ('IMAGE'), video file ('VIDEO') and stream camera ('STREAM').

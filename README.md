@@ -16,6 +16,7 @@ pip3 install -U -r requirements.txt
 ```
 <a name="run_program"></a>
 ## Run Program
+Make a .env file in main folder to configure: [Configure and macros](#configure).
 
 Weight and cfg files will be downloaded by default (yolov3) when main.py program is executed.By default just two classes will be detected, if you want more modified and add it in classes.txt file. Run the default program will use the test image "image.jpg" from inTemp folder. 
 ```
@@ -42,6 +43,9 @@ Program will download the weight and cfg file by defaul (yolov3) from https://pj
 
 <a name="configure"></a>
 ## Configure and macros
+
+Make a .env file in main folder and use macros.
+
 #### 0- Add or ignore classes.
 Edit dnn_folder/classes.txt for user class to detect. Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names. If you need to change the path, use the following macros and make a .env file in main folder:
 ```

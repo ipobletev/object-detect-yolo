@@ -17,9 +17,7 @@ pip3 install -U -r requirements.txt
 <a name="run_program"></a>
 ## Run Program
 
-Weight and cfg files will be downloaded by default (yolov3) when main.py program is executed.\
-By default just two classes will be detected, if you want more modified and add it in classes.txt file \
-Run the default program will use the test image "image.jpg" from inTemp folder.
+Weight and cfg files will be downloaded by default (yolov3) when main.py program is executed.By default just two classes will be detected, if you want more modified and add it in classes.txt file. Run the default program will use the test image "image.jpg" from inTemp folder. 
 ```
 python3 main.py
 ```

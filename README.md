@@ -36,13 +36,11 @@ Program will download the weight and cfg file by defaul (yolov3) from https://pj
 
 ## Configure and macros
 #### 0- Add or ignore classes.
-Edit dnn_folder/classes.txt for user class to detect. Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names.\
-If you need to change the path, use the following macros and make a .env file in main folder:\
+Edit dnn_folder/classes.txt for user class to detect. Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names. If you need to change the path, use the following macros and make a .env file in main folder:
 ```
 CLASSES_PATH='dnn_model/coco.names'
 USER_CLASSES_PATH='dnn_model/classes.txt'
 ```
-If you need use other weight or others class-object detection, do the following:
 #### 1- Set source path and type of source. Image (Default), video, camera stream:
 For image ('IMAGE'), video file ('VIDEO') and camera stream ('STREAM').
 ```
@@ -77,15 +75,12 @@ Save log file to folder "log"
 ```
 ENABLE_LOG_FILE = False
 ```
-For streaming camera, try to reconnect and acquire frame.
+For streaming camera, numbers of try to reconnect and acquire frame.
 ```
 ATTEMPT_CAMERA = 3
 ```
 ## Examples uses
-Use yolov3
-Use Image source
-Show the image result
-Save the image result it in a image file (outTemp folder)
+Image file source, uso yolov3, show the result per frame and save the Image result.
 ```
 # 1- Source
 SOURCE_PATH = 'inTemp/test-image.jpg'
@@ -104,9 +99,7 @@ VM_GUI = True
 # Write Output file
 ENABLE_WRITE_FRAME=True
 ```
-Use yolov3
-Use video file source
-Show the video result per frame
+Video file source, uso yolov3, show the result per frame and save the video result.
 ```
 # 1- Source
 SOURCE_PATH = 'inTemp/test-video.mp4'
@@ -125,10 +118,7 @@ VM_GUI = True
 # Write Output file
 ENABLE_WRITE_FRAME=True
 ```
-Use yolov3
-Use stream camera source
-Show the stream result per frame
-Save the stream result in output video file (outTemp folder)
+Stream camera source, uso yolov3, show the stream result per frame.
 ```
 # 1- Source
 SOURCE_PATH = 0
@@ -144,10 +134,7 @@ YOLO_THRESHOLD = 0.6
 # VM GUI
 VM_GUI = True
 ```
-Use yolov3
-Use stream camera source
-Show the stream result per frame
-Use limit frame, each 5 seconds we take a frame.
+Stream camera source, uso yolov3, show the stream result per frame and use limit frame each 5 seconds and save it into a video file.
 ```
 # 1- Source
 SOURCE_PATH = 0
@@ -162,6 +149,9 @@ YOLO_THRESHOLD = 0.6
 # 3-Other Macros
 # Limit. How seconds for each frame. Default value = 0 without limit.
 LIMIT_TOSECONDS_PERFRAME = 5
+
+# Write Output file
+ENABLE_WRITE_FRAME=True
 
 # VM GUI
 VM_GUI = True

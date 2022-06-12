@@ -1,3 +1,4 @@
+import json
 import logging
 import math
 import cv2
@@ -143,4 +144,10 @@ class frame_process:
                 logging.error("Could not read stream source")
                 status=1
         
+        # Reescale
+        rescale_str=userconfig.RESIZE_FRAME.replace("(", "").replace(")", "")
+        tuple_resize = tuple(map(int, rescale_str.split(',')))
+        if (tuple_resize != (0,0)):
+            frame_raw = cv2.resize(frame_raw, tuple_resize, interpolation= cv2.INTER_LINEAR)
+
         return status, frame_raw

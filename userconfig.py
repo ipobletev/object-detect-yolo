@@ -18,6 +18,9 @@ ATTEMPT_CAMERA = int(os.getenv('ATTEMPT_CAMERA', '3'))
 # Sensor path or dir to the source of frame
 SOURCE_PATH = os.getenv('SOURCE_PATH', 'inTemp/image.jpg')
 
+# Resize input frame
+RESIZE_FRAME = os.getenv('RESIZE_FRAME', '(0,0)')
+
 # Set fps for video file in streaming mode SOURCE_TYPE = 'STREAM'
 MANUAL_FPS =  float(os.getenv('MANUAL_FPS', '0'))
 

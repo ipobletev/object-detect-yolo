@@ -19,7 +19,7 @@ ATTEMPT_CAMERA = int(os.getenv('ATTEMPT_CAMERA', '3'))
 SOURCE_PATH = os.getenv('SOURCE_PATH', 'inTemp/image.jpg')
 
 # Set fps for video file in streaming mode SOURCE_TYPE = 'STREAM'
-MANUAL_FPS =  int(os.getenv('MANUAL_FPS', '0'))
+MANUAL_FPS =  float(os.getenv('MANUAL_FPS', '0'))
 
 # Enable for save image from yolo processing to /outTemp
 ENABLE_WRITE_FRAME = (os.getenv('ENABLE_WRITE_FRAME', 'False') == 'True')
@@ -30,11 +30,14 @@ VM_GUI = (os.getenv('VM_GUI', 'False') == 'True')
 # Enable save log to folder /log
 ENABLE_LOG_FILE=(os.getenv('ENABLE_LOG_FILE', 'False') == 'True')
 
+# Disable auto download weight and cgf by yolo name in pjreddie repo
+DISABLE_WEIGHT_DOWNLOAD = (os.getenv('VM_GUI', 'False') == 'True')
+
 # Limit to seconds per frame
 LIMIT_TOSECONDS_PERFRAME = int(os.getenv('LIMIT_TOSECONDS_PERFRAME', '0'))
 
-# Disable auto download weight and cgf by yolo name in pjreddie repo
-DISABLE_WEIGHT_DOWNLOAD = (os.getenv('VM_GUI', 'False') == 'True')
+# Get frame in current time (stream) or estimate current frame (video)
+DISCONTINUOS_FRAME = (os.getenv('DISCONTINUOS_FRAME', 'False') == 'True')
 
 ################################################################ 
 ################################ YOLO CONFIG

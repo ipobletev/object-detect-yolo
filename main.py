@@ -9,167 +9,157 @@ PYTHONPATH=os.getcwd() + '/Modules'
 sys.path.append(PYTHONPATH)
 from SME_ImageProcessing import ImageProcessing
 from download_yolomodel import attempt_download_cfg, attempt_download_weigth
+from SME_frameProcess import frame_process
 
-class video_process:
+def image_processing():
 
-    id_video_frame=0
-    total_frames = 0
-    fps = 0
-    frame_size =0 
-    video_writer = ''
-    capture_obj=''
-
-    def __init__(self,camera_path) -> None:
+    # Initial time
+    last_time = time.time()
         
-        if (camera_path.isnumeric()):
-            camera_path = int(camera_path)
+    logging.debug("---------------------------------------------")
 
-        self.capture_obj = cv2.VideoCapture(camera_path)
-        self.fps = int(self.capture_obj.get(cv2.CAP_PROP_FPS))
-        self.total_frames = self.capture_obj.get(cv2.CAP_PROP_FRAME_COUNT)
-        self.frame_size =(int(self.capture_obj.get(cv2.CAP_PROP_FRAME_WIDTH)),int(self.capture_obj.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    frame_status, frame_raw = frameprocess.read_frame()   
 
-        if(userconfig.MANUAL_FPS > 0):
-            self.fps = userconfig.MANUAL_FPS
-
-        # Define the codec and create VideoWriter object
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.video_writer = cv2.VideoWriter('outTemp/output.avi', fourcc, self.fps, self.frame_size)
-
-    def video_processing(self):
+    if frame_status == 0 :
         
-        status=0
+        ####################### Analize image #######################video_process
+        frame_yolo = frame_raw.copy()
 
-        rev, frame = self.capture_obj.read()
-        if not rev:
-            logging.error("Error to read frame")
-            status=1
+        # Analize the image frame
+        flag_detection= False
+        flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
 
-        self.id_video_frame+=1
-        logging.debug("Frame %d/%d", self.id_video_frame,self.total_frames)
+        if flag_detection == True:
+            pass
 
-        return status, frame
+        ####################### Write to file #######################
+        if(userconfig.ENABLE_WRITE_FRAME == True):
+            # Write image
+            cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame_yolo)
+        
+        ####################### Time #######################
+        # Calculate FPS and finish time
+        calculate_time = (time.time() - last_time)
+        logging.debug("Time: %0.2f", calculate_time)
+        last_time = time.time()
 
-    def stream_proccesing(self):
+        ####################### Image GUI #######################
+        if(userconfig.VM_GUI == True):
+            while(1):
+                cv2.imshow('YOLO Algorithm', frame_yolo)
+                if(cv2.waitKey(1) == 27):
+                    break
 
-        status = 0
-        try_attempt =0
-
-        while(try_attempt <= (userconfig.ATTEMPT_CAMERA-1)):
-
-            try_attempt += 1
-
-            if not self.capture_obj.isOpened():
-                logging.debug("There is no communication with the camera")
-                status = 1
-
-            logging.debug("Capturing frame...")
-            frame_grabbed, frame = self.capture_obj.read()
-
-            if not frame_grabbed:
-                logging.debug("Frame could not be captured")
-                status = 1
-
-            # Error, Reconnect camera
-            if status != 0:
-                logging.debug("Reset camera")
-            #OK, status =0
-            else:
-                logging.debug("Frame Captured.")
-                
-                return status, frame
-        #Error
-        return status, frame
-
-def main_program():
+def video_processing():
 
     # Initial time
     last_time = time.time()
     start_time = time.time() - userconfig.LIMIT_TOSECONDS_PERFRAME
 
     while(1):
+        
+        ####################### Read frame in time #######################
+        frame_status=1
         if((time.time() - start_time) > userconfig.LIMIT_TOSECONDS_PERFRAME):
+            # start time of the loop for limit functionality
+            start_time = time.time() 
+            if(userconfig.DISCONTINUOS_FRAME == False):
+                frame_status, frame_raw = frameprocess.read_frame()
+
+        if(userconfig.DISCONTINUOS_FRAME == True):
+            frame_status, frame_raw = frameprocess.read_frame()  
+
+        if frame_status == 0:
 
             logging.debug("---------------------------------------------")
+
+            ####################### Analize image #######################
+            frame_yolo = frame_raw.copy()
+            # Analize the image frame
+            flag_detection= False
+            flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
+
+            if flag_detection == True:
+                pass
+
+            ####################### Write to file #######################
+            if(userconfig.ENABLE_WRITE_FRAME == True):
+
+                    frameprocess.video_writer.write(frame_yolo)
+
+            ####################### Image GUI #######################
+            if(userconfig.VM_GUI == True):
+                cv2.imshow('YOLO Algorithm', frame_yolo)
+                if(cv2.waitKey(1) == 27):
+                    break
+            
+            ####################### FPS and time #######################
+            if(userconfig.DISCONTINUOS_FRAME == True):
+                logging.debug("Frame: %s",frameprocess.id_video_frame)
+            else:
+                logging.debug("Frame: %s/%s",frameprocess.id_video_frame,frameprocess.total_frames)
+
+            # Calculate FPS and finish time
+            calculate_time = (time.time() - last_time)
+            calculate_fps = (1.0 / calculate_time)
+            logging.debug("FPS: %0.2f - Time: %0.2f", calculate_fps, calculate_time)
+            last_time = time.time()
+
+        ####################### END #######################
+
+        if(frameprocess.id_video_frame >= frameprocess.total_frames):
+            frameprocess.capture_obj.release()
+            frameprocess.video_writer.release()
+            break
+
+def stream_processing():
+
+    # Initial time
+    last_time = time.time()
+    start_time = time.time() - userconfig.LIMIT_TOSECONDS_PERFRAME
+
+    while(1):
+        logging.debug("---------------------------------------------")
+
+        ####################### Read frame in time #######################
+        if(userconfig.DISCONTINUOS_FRAME == True):
+            frame_status, frame_raw = frameprocess.read_frame() 
+
+        time_status=1
+        if((time.time() - start_time) > userconfig.LIMIT_TOSECONDS_PERFRAME):
             # start time of the loop for limit functionality
             start_time = time.time() 
 
-            ####################### Read frame #######################
-            status=0
-            frame_raw=""
+            if(userconfig.DISCONTINUOS_FRAME == False):
+                frame_status, frame_raw = frameprocess.read_frame()
+            
+            time_status=0
 
-            # From imagen or video
-            if(userconfig.SOURCE_TYPE == "IMAGE"):
-                logging.debug("Image frame")
-                try:
-                    frame_raw = cv2.imread(userconfig.SOURCE_PATH)
-                except:
-                    logging.error("Could not read image source")
-                    status=1
-
-            # From Camera
-            if(userconfig.SOURCE_TYPE == "VIDEO"):
-                logging.debug("Video frame")
-
-                try:
-                    status, frame_raw = videoprocess.video_processing()
-                except:
-                    logging.error("Could not read video source")
-                    break
-
-            if(userconfig.SOURCE_TYPE == "STREAM"):
-                logging.debug("Streaming frame")
-
-                try:
-                    status, frame_raw = videoprocess.stream_proccesing()
-                except:
-                    logging.error("Could not read stream source")
-                    break
-  
+        if frame_status == 0 and time_status == 0:
+            
             ####################### Analize image #######################
-            if status == 0:
+            frame_yolo = frame_raw.copy()
+            # Analize the image frame
+            flag_detection= False
+            flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
 
-                frame_yolo = frame_raw.copy()
-                # Analize the image frame
-                flag_detection= False
-                flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
+            if flag_detection == True:
+                pass
 
-                if flag_detection == True:
-                    pass
+            ####################### Write to file #######################
+            if(userconfig.ENABLE_WRITE_FRAME == True):
+                frameprocess.video_writer.write(frame_yolo)
 
-                ####################### WRITE #######################
-                if(userconfig.ENABLE_WRITE_FRAME == True):
-
-                    # Write image
-                    if(userconfig.SOURCE_TYPE == "IMAGE"):
-                        cv2.imwrite("outTemp/"+ str(datetime.now()) + ".png", frame_yolo)
-                    if(userconfig.SOURCE_TYPE == "VIDEO"):
-                        videoprocess.video_writer.write(frame_yolo)
-                    if(userconfig.SOURCE_TYPE == "STREAM"):
-                        videoprocess.video_writer.write(frame_yolo)
-
-                ####################### Image GUI #######################
-                if(userconfig.VM_GUI == True):
-                    cv2.imshow('YOLO Algorithm', frame_yolo)
-                
-                # Stop image
-                if(userconfig.VM_GUI == True):
-                    if(cv2.waitKey(1) == 27):
-                        if(userconfig.SOURCE_TYPE == "STREAM"):
-                            videoprocess.capture_obj.release()
-                            videoprocess.video_writer.release()
-                            break
-            
-            if(userconfig.SOURCE_TYPE == "IMAGE"):
-                break
-
-            if(userconfig.SOURCE_TYPE == "VIDEO"):
-                if(videoprocess.id_video_frame >= videoprocess.total_frames):
-                    videoprocess.capture_obj.release()
-                    videoprocess.video_writer.release()
+            ####################### Image GUI #######################
+            if(userconfig.VM_GUI == True):
+                cv2.imshow('YOLO Algorithm', frame_yolo)
+                if(cv2.waitKey(1) == 27):
+                    frameprocess.capture_obj.release()
+                    frameprocess.video_writer.release()
                     break
             
-            # Calulate FPS and finish time
+            ####################### FPS and time #######################
+            # Calculate FPS and finish time
             calculate_time = (time.time() - last_time)
             calculate_fps = (1.0 / calculate_time)
             logging.debug("FPS: %0.2f - Time: %0.2f", calculate_fps, calculate_time)
@@ -208,8 +198,7 @@ if __name__ == '__main__':
     logging.debug("###################################")
 
     #Init video process 
-    if(userconfig.SOURCE_TYPE == "VIDEO" or userconfig.SOURCE_TYPE == "STREAM"):
-        videoprocess = video_process(userconfig.SOURCE_PATH)
+    frameprocess = frame_process(userconfig.SOURCE_TYPE, userconfig.SOURCE_PATH)
 
     # Download cfg and yolo weight
     logging.debug(os.path.basename(userconfig.YOLO_WEIGHT_PATH))
@@ -224,18 +213,22 @@ if __name__ == '__main__':
     ################## LOOP
 
     try:
-
-        main_program()
+        if(userconfig.SOURCE_TYPE == "IMAGE"):
+            image_processing()
+        if(userconfig.SOURCE_TYPE == "VIDEO"):
+            video_processing()
+        if(userconfig.SOURCE_TYPE == "STREAM"):
+            stream_processing()
 
     except KeyboardInterrupt:
         # Control + C (Remote)
         logging.debug("key stop")
         if(userconfig.SOURCE_TYPE == "STREAM"):
-            videoprocess.capture_obj.release()
-            videoprocess.video_writer.release()
-    except Exception as error_info:
-        logging.error("A error has ocurred.")
-        logging.error(error_info)
+            frameprocess.capture_obj.release()
+            frameprocess.video_writer.release()
+    # except Exception as error_info:
+    #     logging.error("A error has ocurred.")
+    #     logging.error(error_info)
 
     ################## END
 

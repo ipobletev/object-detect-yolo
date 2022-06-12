@@ -60,6 +60,14 @@ class ImageProcessing():
                         "class_color" : (0,255,0)
                     }
 
+                #Manual color
+                if(raw_linetext=="car"):
+                    self.classes_yolo[count] = {
+                        "class_id" : count,
+                        "class_name" : raw_linetext,
+                        "class_color" : (255,0,0)
+                    }
+
         # Store names user classes for model
         self.user_classes_yolo = []
         with open(classes_user_path, "r") as file_classes:

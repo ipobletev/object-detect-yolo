@@ -2,12 +2,20 @@
 
 Object detection with yolo-opencv. Image, video file and streaming camera features.
 
+## Table of Contents
+1. [Instalation](#Instalation)
+2. [Run Program](#run_program)
+3. [Tree Folder](#tree_folder)
+4. [Configure and macros](#configure)
+5. [Examples uses](#examples_uses)
+
+<a name="Instalation"></a>
 ## Instalation
 ```
 pip3 install -U -r requirements.txt
 ```
-
-## Run program with test image
+<a name="run_program"></a>
+## Run Program
 
 Weight and cfg files will be downloaded by default (yolov3) when main.py program is executed.\
 By default just two classes will be detected, if you want more modified and add it in classes.txt file \
@@ -17,8 +25,8 @@ python3 main.py
 ```
 Program will download the weight and cfg file by defaul (yolov3) from https://pjreddie.com/darknet/yolo/ if it is not present in dnn_folder.
 
-
-## About Tree Folder
+<a name="tree_folder"></a>
+## Tree Folder
     .
     ├── dnn_model                 # Folder with weight, cfg files and classes details for user.
     │   ├──classes.txt            # File with the user class names to use (default just = car, person)
@@ -34,6 +42,7 @@ Program will download the weight and cfg file by defaul (yolov3) from https://pj
     ├── requirements.txt          # Dependencies to install 
     └── README.md
 
+<a name="configure"></a>
 ## Configure and macros
 #### 0- Add or ignore classes.
 Edit dnn_folder/classes.txt for user class to detect. Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names. If you need to change the path, use the following macros and make a .env file in main folder:
@@ -79,7 +88,14 @@ For streaming camera, numbers of try to reconnect and acquire frame.
 ```
 ATTEMPT_CAMERA = 3
 ```
+Disable the auto download to pjreddie repo. Useful if you have a custom weight and you see garbage console data of curl things.
+```
+DISABLE_WEIGHT_DOWNLOAD = True
+```
+<a name="examples_uses"></a>
 ## Examples uses
+Create a file .env in main folder and add the following macros:
+\
 Image file source, uso yolov3, show the result per frame and save the Image result.
 ```
 # 1- Source

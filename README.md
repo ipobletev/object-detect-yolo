@@ -2,6 +2,8 @@
 
 Object detection with yolo-opencv. Image, video file and streaming camera features.
 
+![Screenshot](/media/media.png)
+
 ## Table of Contents
 1. [Instalation](#Instalation)
 2. [Run Program](#run_program)

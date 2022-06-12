@@ -34,7 +34,14 @@ Program will download the weight and cfg file by defaul (yolov3) from https://pj
     ├── requirements.txt          # Dependencies to install 
     └── README.md
 
-## Examples uses
+## Configure and macros
+#### 0-For add or ignore classes.
+Edit dnn_folder/classes.txt for user class to detect. Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names.\
+If you need to change the path, use the following macros and make a .env file in main folder:\
+```
+CLASSES_PATH='dnn_model/coco.names'
+USER_CLASSES_PATH='dnn_model/classes.txt'
+```
 If you need use other weight or others class-object detection, do the following:
 #### 1-Change the frame source and path. Image (Default), video, camera:
 For image ('IMAGE'), video file ('VIDEO') and stream camera ('STREAM').
@@ -49,14 +56,7 @@ YOLO_WEIGHT_PATH="dnn_model/yolov3.weights"
 YOLO_THRESHOLD = 0.6
 YOLO_SUPRESSION = 0.4
 ```
-#### 3-For add or ignore classes.
-Edit dnn_folder/classes.txt for user class to detect. Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names.\
-If you need to change the path, use the following macros and make a .env file in main folder:\
-```
-CLASSES_PATH='dnn_model/coco.names'
-USER_CLASSES_PATH='dnn_model/classes.txt'
-```
-#### 4-Use other useful enviroment macros
+#### 3-Use other useful enviroment macros
 Activate the GUI and show image frame
 ```
 VM_GUI = True
@@ -80,4 +80,89 @@ ENABLE_LOG_FILE = False
 For streaming camera, try to reconnect and acquire frame.
 ```
 ATTEMPT_CAMERA = 3
+```
+## Examples uses
+Use yolov3
+Use Image source
+Show the image result
+Save the image result it in a image file (outTemp folder)
+```
+# 1- Source
+SOURCE_PATH = 'inTemp/test-image.jpg'
+SOURCE_TYPE = 'IMAGE'
+
+# 2- Configure Model
+YOLO_WEIGHT_CFG_PATH="dnn_model/yolov3.cfg"
+YOLO_WEIGHT_PATH="dnn_model/yolov3.weights"
+YOLO_SUPRESSION = 0.4
+YOLO_THRESHOLD = 0.6
+
+# 3-Other Macros
+# VM GUI
+VM_GUI = True
+
+# Write Output file
+ENABLE_WRITE_FRAME=True
+```
+Use yolov3
+Use video file source
+Show the video result per frame
+```
+# 1- Source
+SOURCE_PATH = 'inTemp/test-video.mp4'
+SOURCE_TYPE = 'VIDEO'
+
+# 2- Configure Model
+YOLO_WEIGHT_CFG_PATH="dnn_model/yolov3.cfg"
+YOLO_WEIGHT_PATH="dnn_model/yolov3.weights"
+YOLO_SUPRESSION = 0.4
+YOLO_THRESHOLD = 0.6
+
+# 3-Other Macros
+# VM GUI
+VM_GUI = True
+
+# Write Output file
+ENABLE_WRITE_FRAME=True
+```
+Use yolov3
+Use stream camera source
+Show the stream result per frame
+Save the stream result in output video file (outTemp folder)
+```
+# 1- Source
+SOURCE_PATH = 0
+SOURCE_TYPE = 'STREAM'
+
+# 2- Configure Model
+YOLO_WEIGHT_CFG_PATH="dnn_model/yolov3.cfg"
+YOLO_WEIGHT_PATH="dnn_model/yolov3.weights"
+YOLO_SUPRESSION = 0.4
+YOLO_THRESHOLD = 0.6
+
+# Other Macros
+# VM GUI
+VM_GUI = True
+```
+Use yolov3
+Use stream camera source
+Show the stream result per frame
+Use limit frame, each 5 seconds we take a frame.
+```
+# 1- Source
+SOURCE_PATH = 0
+SOURCE_TYPE = 'STREAM'
+
+# 2- Configure Model
+YOLO_WEIGHT_CFG_PATH="dnn_model/yolov3.cfg"
+YOLO_WEIGHT_PATH="dnn_model/yolov3.weights"
+YOLO_SUPRESSION = 0.4
+YOLO_THRESHOLD = 0.6
+
+# 3-Other Macros
+# Limit. How seconds for each frame. Default value = 0 without limit.
+LIMIT_TOSECONDS_PERFRAME = 5
+
+# VM GUI
+VM_GUI = True
 ```

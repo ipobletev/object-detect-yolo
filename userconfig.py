@@ -36,9 +36,6 @@ DISABLE_WEIGHT_DOWNLOAD = (os.getenv('VM_GUI', 'False') == 'True')
 # Limit to seconds per frame
 LIMIT_TOSECONDS_PERFRAME = int(os.getenv('LIMIT_TOSECONDS_PERFRAME', '0'))
 
-# Get frame in current time (stream) or estimate current frame (video)
-DISCONTINUOS_FRAME = (os.getenv('DISCONTINUOS_FRAME', 'False') == 'True')
-
 ################################################################ 
 ################################ YOLO CONFIG
 ################################################################ 

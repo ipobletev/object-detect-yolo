@@ -54,20 +54,11 @@ def video_processing():
 
     # Initial time
     last_time = time.time()
-    start_time = time.time() - userconfig.LIMIT_TOSECONDS_PERFRAME
 
     while(1):
         
         ####################### Read frame in time #######################
-        frame_status=1
-        if((time.time() - start_time) > userconfig.LIMIT_TOSECONDS_PERFRAME):
-            # start time of the loop for limit functionality
-            start_time = time.time() 
-            if(userconfig.DISCONTINUOS_FRAME == False):
-                frame_status, frame_raw = frameprocess.read_frame()
-
-        if(userconfig.DISCONTINUOS_FRAME == True):
-            frame_status, frame_raw = frameprocess.read_frame()  
+        frame_status, frame_raw = frameprocess.read_frame()  
 
         if frame_status == 0:
 
@@ -94,7 +85,7 @@ def video_processing():
                     break
             
             ####################### FPS and time #######################
-            if(userconfig.DISCONTINUOS_FRAME == True):
+            if(userconfig.LIMIT_TOSECONDS_PERFRAME > 0):
                 logging.debug("Frame: %s",frameprocess.id_video_frame)
             else:
                 logging.debug("Frame: %s/%s",frameprocess.id_video_frame,frameprocess.total_frames)
@@ -102,7 +93,8 @@ def video_processing():
             # Calculate FPS and finish time
             calculate_time = (time.time() - last_time)
             calculate_fps = (1.0 / calculate_time)
-            logging.debug("FPS: %0.2f - Time: %0.2f", calculate_fps, calculate_time)
+            time_left_min = int(calculate_time * (frameprocess.total_frames - frameprocess.id_video_frame))
+            logging.debug("FPS: %0.2f - Time: %0.2f - TimeLeft: %0.2f [s]", calculate_fps, calculate_time,time_left_min)
             last_time = time.time()
 
         ####################### END #######################
@@ -122,7 +114,7 @@ def stream_processing():
         logging.debug("---------------------------------------------")
 
         ####################### Read frame in time #######################
-        if(userconfig.DISCONTINUOS_FRAME == True):
+        if(userconfig.LIMIT_TOSECONDS_PERFRAME > 0):
             frame_status, frame_raw = frameprocess.read_frame() 
 
         time_status=1
@@ -130,7 +122,7 @@ def stream_processing():
             # start time of the loop for limit functionality
             start_time = time.time() 
 
-            if(userconfig.DISCONTINUOS_FRAME == False):
+            if(userconfig.LIMIT_TOSECONDS_PERFRAME == 0):
                 frame_status, frame_raw = frameprocess.read_frame()
             
             time_status=0
@@ -149,14 +141,6 @@ def stream_processing():
             ####################### Write to file #######################
             if(userconfig.ENABLE_WRITE_FRAME == True):
                 frameprocess.video_writer.write(frame_yolo)
-
-            ####################### Image GUI #######################
-            if(userconfig.VM_GUI == True):
-                cv2.imshow('YOLO Algorithm', frame_yolo)
-                if(cv2.waitKey(1) == 27):
-                    frameprocess.capture_obj.release()
-                    frameprocess.video_writer.release()
-                    break
             
             ####################### FPS and time #######################
             # Calculate FPS and finish time
@@ -164,6 +148,14 @@ def stream_processing():
             calculate_fps = (1.0 / calculate_time)
             logging.debug("FPS: %0.2f - Time: %0.2f", calculate_fps, calculate_time)
             last_time = time.time()
+
+        ####################### Image GUI #######################
+        if(userconfig.VM_GUI == True):
+            cv2.imshow('YOLO Algorithm', frame_yolo)
+            if(cv2.waitKey(1) == 27):
+                frameprocess.capture_obj.release()
+                frameprocess.video_writer.release()
+                break
 
 if __name__ == '__main__':
 

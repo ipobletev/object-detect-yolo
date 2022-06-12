@@ -22,10 +22,15 @@ class frame_process:
     try_attemp = userconfig.ATTEMPT_CAMERA
 
     # Discontinuous mode
+    # Video
     list_frames_tostore = []
-    f_discontinous_mode = userconfig.DISCONTINUOS_FRAME
+    # Video-stream
+    f_discontinous_mode = False
 
     def __init__(self,src_type,src_path) -> None:
+
+        if(self.seconds > 0):
+            self.f_discontinous_mode = True
 
         self.source_path = src_path
         self.source_type = src_type

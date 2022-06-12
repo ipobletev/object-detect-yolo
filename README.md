@@ -35,7 +35,7 @@ Program will download the weight and cfg file by defaul (yolov3) from https://pj
     └── README.md
 
 ## Configure and macros
-#### 0-For add or ignore classes.
+#### 0- Add or ignore classes.
 Edit dnn_folder/classes.txt for user class to detect. Add the classes names to detect. (By default just car and person are in the file). It is compare with coco.names.\
 If you need to change the path, use the following macros and make a .env file in main folder:\
 ```
@@ -43,20 +43,20 @@ CLASSES_PATH='dnn_model/coco.names'
 USER_CLASSES_PATH='dnn_model/classes.txt'
 ```
 If you need use other weight or others class-object detection, do the following:
-#### 1-Change the frame source and path. Image (Default), video, camera:
-For image ('IMAGE'), video file ('VIDEO') and stream camera ('STREAM').
+#### 1- Set source path and type of source. Image (Default), video, camera stream:
+For image ('IMAGE'), video file ('VIDEO') and camera stream ('STREAM').
 ```
 SOURCE_TYPE = 'IMAGE'
 SENSOR_PATH = 'inTemp/image.jpg'
 ```
-#### 2-Configure yolo cfg, weight path and config threshold or supression:
+#### 2- Configure yolo cfg, weight path and config threshold or supression:
 ```
 YOLO_WEIGHT_CFG_PATH="dnn_model/yolov3.cfg"
 YOLO_WEIGHT_PATH="dnn_model/yolov3.weights"
 YOLO_THRESHOLD = 0.6
 YOLO_SUPRESSION = 0.4
 ```
-#### 3-Use other useful enviroment macros
+#### 3- Use other useful enviroment macros
 Activate the GUI and show image frame
 ```
 VM_GUI = True

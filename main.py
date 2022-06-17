@@ -136,6 +136,9 @@ def stream_processing():
             flag_detection, objects_detected = yolobject.YoloProcessing(frame_yolo)
 
             if flag_detection == True:
+
+
+                
                 pass
 
             ####################### Write to file #######################

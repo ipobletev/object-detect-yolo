@@ -133,7 +133,7 @@ class ImageProcessing():
         confidence_values = []
         list_objects = []
 
-         #loop over each of the layer outputs
+        #loop over each of the layer outputs
         for output in model_outputs:
             #for detection in output;
             for detection in output:

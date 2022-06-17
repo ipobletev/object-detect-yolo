@@ -2,7 +2,7 @@
 
 Object detection with yolo-opencv. Image, video file and streaming camera features.
 
-![Screenshot](/media/media.png)
+<img src="/media/media.png" width="296"/><img src="/media/media2.png" width="350"/><img src="/media/media3.png" width="350"/>
 
 ## Table of Contents
 1. [Instalation](#Instalation)

@@ -25,6 +25,7 @@ Weight and cfg files will be downloaded by default (yolov3) when main.py program
 python3 main.py
 ```
 Program will download the weight and cfg file by defaul (yolov3) from https://pjreddie.com/darknet/yolo/ if it is not present in dnn_folder.
+Configure .env file [Examples uses](#examples_uses)
 
 <a name="tree_folder"></a>
 ## Tree Folder
